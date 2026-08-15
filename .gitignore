@@ -1,7 +1,32 @@
-node_modules/
-dist/
+# --- secrets: never commit ---
 .env
 .env.*
 !.env.example
-*.log
+
+# --- python ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# --- local database (dev only; production uses PostgreSQL) ---
+*.db
+*.db-journal
+*.sqlite3
+
+# --- uploaded files (company logos, employee documents) ---
+backend/uploads/
+
+# --- node / frontend ---
+node_modules/
+dist/
+.vite/
+
+# --- editors / OS ---
+.vscode/
+.idea/
 .DS_Store
+Thumbs.db
+*.swp

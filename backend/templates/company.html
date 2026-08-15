@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Company - HRMS</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .container {
+            width: 900px;
+            max-width: 95%;
+            margin: 50px auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field.full {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        input,
+        select {
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        button {
+            border: none;
+            padding: 13px 25px;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 7px;
+            display: none;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 700px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Create your company</h1>
+        <p>Set up your organization's HR workspace.</p>
+    </div>
+
+    <div class="card">
+
+        <form id="companyForm">
+
+            <!-- BASIC INFORMATION -->
+            <div class="section">
+
+                <h2>Basic Company Information</h2>
+
+                <div class="grid">
+
+                    <div class="field">
+                        <label>Company Name *</label>
+                        <input
+                            type="text"
+                            id="company_name"
+                            placeholder="e.g."
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label>Industry *</label>
+
+                        <select id="industry">
+                            <option value="">Select Industry</option>
+                            <option value="Technology">Technology / Software</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Finance">Finance / Banking</option>
+                            <option value="Manufacturing">Manufacturing</option>
+                            <option value="Retail">Retail</option>
+                            <option value="Education">Education</option>
+                            <option value="Construction">Construction</option>
+                            <option value="Hospitality">Hospitality</option>
+                            <option value="Consulting">Consulting</option>
+                            <option value="Marketing">Marketing / Advertising</option>
+                            <option value="Logistics">Logistics</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Company Size *</label>
+
+                        <select id="company_size">
+                            <option value="">Select Size</option>
+                            <option value="1-10">1–10</option>
+                            <option value="11-50">11–50</option>
+                            <option value="51-200">51–200</option>
+                            <option value="201-500">201–500</option>
+                            <option value="501-1000">501–1000</option>
+                            <option value="1000+">1000+</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Company Type *</label>
+
+                        <select id="company_type">
+                            <option value="">Select Type</option>
+                            <option value="Private Limited">Private Limited</option>
+                            <option value="Public Limited">Public Limited</option>
+                            <option value="LLP">LLP</option>
+                            <option value="Partnership">Partnership</option>
+                            <option value="Proprietorship">Proprietorship</option>
+                            <option value="Government">Government</option>
+                            <option value="NGO">NGO / Non-Profit</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONTACT -->
+            <div class="section">
+
+                <h2>Company Contact</h2>
+
+                <div class="grid">
+
+                    <div class="field">
+                        <label>Official Email *</label>
+                        <input
+                            type="email"
+                            id="company_email"
+                            placeholder="hr@company.com"
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label>Phone *</label>
+                        <input
+                            type="text"
+                            id="company_phone"
+                            placeholder="+91 XXXXX XXXXX"
+                        >
+                    </div>
+
+                    <div class="field full">
+                        <label>Website</label>
+                        <input
+                            type="text"
+                            id="company_website"
+                            placeholder="https://company.com"
+                        >
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ADDRESS -->
+            <div class="section">
+
+                <h2>Company Address</h2>
+
+                <div class="grid">
+
+                    <div class="field">
+                        <label>Country *</label>
+
+                        <select id="country">
+                            <option value="">Select Country</option>
+                            <option value="India">India</option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="UAE">UAE</option>
+                            <option value="Singapore">Singapore</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>State *</label>
+                        <input
+                            type="text"
+                            id="state"
+                            placeholder="Maharashtra"
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label>City *</label>
+                        <input
+                            type="text"
+                            id="city"
+                            placeholder="Mumbai"
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label>Postal Code *</label>
+                        <input
+                            type="text"
+                            id="postal_code"
+                            placeholder="400001"
+                        >
+                    </div>
+
+                    <div class="field full">
+                        <label>Address *</label>
+
+                        <input
+                            type="text"
+                            id="company_address"
+                            placeholder="Complete company address"
+                        >
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="actions">
+
+                <button type="submit">
+                    Create Company →
+                </button>
+
+            </div>
+
+        </form>
+
+        <div id="message"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.getElementById("companyForm").addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const data = {
+
+        company_name:
+            document.getElementById("company_name").value,
+
+        industry:
+            document.getElementById("industry").value,
+
+        company_size:
+            document.getElementById("company_size").value,
+
+        company_type:
+            document.getElementById("company_type").value,
+
+        company_email:
+            document.getElementById("company_email").value,
+
+        company_phone:
+            document.getElementById("company_phone").value,
+
+        company_website:
+            document.getElementById("company_website").value,
+
+        country:
+            document.getElementById("country").value,
+
+        state:
+            document.getElementById("state").value,
+
+        city:
+            document.getElementById("city").value,
+
+        company_address:
+            document.getElementById("company_address").value,
+
+        postal_code:
+            document.getElementById("postal_code").value
+    };
+
+
+    try {
+
+        const response = await fetch("/create_company", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(data)
+
+        });
+
+
+        const result = await response.json();
+
+        const message = document.getElementById("message");
+
+        message.style.display = "block";
+
+
+        if (response.ok) {
+
+            message.className = "success";
+
+            message.innerText =
+                "Company created successfully!";
+
+            // Go to next onboarding step
+            setTimeout(() => {
+                window.location.href = "/organization";
+            }, 1000);
+
+        } else {
+
+            message.className = "error";
+
+            message.innerText =
+                result.error || "Something went wrong.";
+
+        }
+
+    } catch (error) {
+
+        const message = document.getElementById("message");
+
+        message.style.display = "block";
+
+        message.className = "error";
+
+        message.innerText =
+            "Unable to connect to server.";
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
