@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Organization Setup - HRMS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .container {
+            width: 900px;
+            max-width: 95%;
+            margin: 50px auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 160px auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        input,
+        select {
+            padding: 11px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+        }
+
+        button {
+            border: none;
+            padding: 11px 18px;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .department-list {
+            margin-top: 35px;
+        }
+
+        .department {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 16px;
+
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+
+            margin-bottom: 10px;
+        }
+
+        .department-name {
+            font-weight: 600;
+        }
+
+        .status {
+            background: #dcfce7;
+            color: #166534;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        #message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 7px;
+            display: none;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .continue {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>Organization Setup</h1>
+
+        <p>
+            Create departments for your organization.
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h2>Departments</h2>
+
+        <p>
+            Add the departments that exist in your company.
+        </p>
+
+
+        <form id="departmentForm">
+
+            <div class="form-row">
+
+                <div class="field">
+
+                    <label>Department Name *</label>
+
+                    <input
+                        type="text"
+                        id="department_name"
+                        placeholder="Engineering"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Department Head</label>
+
+                    <input
+                        type="text"
+                        id="department_head"
+                        placeholder="Optional"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>Status</label>
+
+                    <select id="department_status">
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button type="submit">
+                    + Add
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <div id="message"></div>
+
+
+        <div class="department-list">
+
+            <h3>Departments</h3>
+
+            <div id="departments">
+
+                <!-- Departments appear here -->
+
+            </div>
+
+        </div>
+
+
+        <div class="continue">
+
+            <button onclick="continueSetup()">
+                Continue →
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const departments = [];
+
+
+document.getElementById("departmentForm")
+.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+
+    const data = {
+
+        department_name:
+            document.getElementById("department_name").value,
+
+        department_head:
+            document.getElementById("department_head").value,
+
+        department_status:
+            document.getElementById("department_status").value
+
+    };
+
+
+    try {
+
+        const response = await fetch("/departments", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(data)
+
+        });
+
+
+        const result = await response.json();
+
+
+        if (!response.ok) {
+
+            showMessage(
+                result.error || "Something went wrong.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        departments.push(result.department);
+
+
+        renderDepartments();
+
+
+        document.getElementById("departmentForm")
+            .reset();
+
+
+        showMessage(
+            "Department added successfully.",
+            "success"
+        );
+
+
+    } catch (error) {
+
+        showMessage(
+            "Unable to connect to server.",
+            "error"
+        );
+
+    }
+
+});
+
+
+function renderDepartments() {
+
+    const container =
+        document.getElementById("departments");
+
+
+    container.innerHTML = "";
+
+
+    departments.forEach(function(department) {
+
+        const div =
+            document.createElement("div");
+
+
+        div.className = "department";
+
+
+        div.innerHTML = `
+
+            <div>
+
+                <div class="department-name">
+                    ${department.name}
+                </div>
+
+                <small>
+                    ${department.head || "No department head"}
+                </small>
+
+            </div>
+
+            <div>
+
+                <span class="status">
+                    ${department.status}
+                </span>
+
+            </div>
+
+        `;
+
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+function showMessage(text, type) {
+
+    const message =
+        document.getElementById("message");
+
+    message.style.display = "block";
+
+    message.className = type;
+
+    message.innerText = text;
+
+}
+
+
+function continueSetup() {
+
+    window.location.href =
+        "/organization/designations";
+
+}
+
+</script>
+
+</body>
+
+</html>
