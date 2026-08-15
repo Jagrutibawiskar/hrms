@@ -1,8 +1,10 @@
-from sqlalchemy import BigInteger, Boolean, ForeignKey, Index, String
+from datetime import date, datetime
+
+from sqlalchemy import BigInteger, Boolean, Date, DateTime, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, PKMixin, TimestampMixin
-from app.models.enums import DocumentType, enum_column
+from app.models.enums import DocumentStatus, DocumentType, enum_column
 
 
 class EmployeeDocument(Base, PKMixin, TimestampMixin):
@@ -32,5 +34,21 @@ class EmployeeDocument(Base, PKMixin, TimestampMixin):
     uploaded_by_user_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL")
     )
+
+    # --- verification ---
+    status: Mapped[DocumentStatus] = mapped_column(
+        enum_column(DocumentStatus), default=DocumentStatus.PENDING, nullable=False, index=True
+    )
+    verified_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    rejection_reason: Mapped[str | None] = mapped_column(String(500))
+    # Set for documents the policy tracks (work permits, contracts).
+    expiry_date: Mapped[date | None] = mapped_column(Date)
+
+    @property
+    def is_expired(self) -> bool:
+        return self.expiry_date is not None and self.expiry_date < date.today()
 
     employee: Mapped["Employee"] = relationship(lazy="joined")  # noqa: F821

@@ -27,18 +27,14 @@ from app.services.leave_service import ensure_leave_balances
 
 
 def next_employee_code(db: Session, company_id: int) -> str:
-    count = db.scalar(select(func.count(Employee.id)).where(Employee.company_id == company_id)) or 0
-    # Skip codes that already exist (manual codes may collide with the sequence).
-    for n in range(count + 1, count + 1000):
-        code = f"EMP{n:04d}"
-        taken = db.scalar(
-            select(Employee.id).where(
-                Employee.company_id == company_id, Employee.employee_code == code
-            )
-        )
-        if not taken:
-            return code
-    raise BadRequest("Could not allocate an employee code")
+    """Uses the company's configured format so every creation path agrees."""
+    from app.models.company import Company
+    from app.services import hr_service
+
+    company = db.get(Company, company_id)
+    if company is None:
+        raise BadRequest("Company not found")
+    return hr_service.generate_employee_code(db, company)
 
 
 def _validate_org_refs(db: Session, company_id: int, emp: EmploymentDetailsIn) -> None:

@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, File, Form, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy import select
@@ -6,7 +8,7 @@ from app.core.deps import CurrentUser, Perm
 from app.core.exceptions import Forbidden, NotFound
 from app.core.rbac import P
 from app.models.document import EmployeeDocument
-from app.models.enums import DocumentType, NotificationEvent
+from app.models.enums import DocumentStatus, DocumentType, NotificationEvent
 from app.schemas.common import Message
 from app.schemas.misc import DocumentOut, DocumentUpdate
 from app.services import employee_service, notification_service
@@ -22,6 +24,7 @@ def to_out(doc: EmployeeDocument) -> DocumentOut:
         id=doc.id,
         employee_id=doc.employee_id,
         employee_name=doc.employee.full_name if doc.employee else None,
+        employee_code=doc.employee.employee_code if doc.employee else None,
         document_type=doc.document_type,
         title=doc.title,
         description=doc.description,
@@ -31,6 +34,11 @@ def to_out(doc: EmployeeDocument) -> DocumentOut:
         is_visible_to_employee=doc.is_visible_to_employee,
         uploaded_by_user_id=doc.uploaded_by_user_id,
         created_at=doc.created_at,
+        status=doc.status,
+        verified_by_user_id=doc.verified_by_user_id,
+        verified_at=doc.verified_at,
+        rejection_reason=doc.rejection_reason,
+        expiry_date=doc.expiry_date,
     )
 
 
@@ -86,6 +94,7 @@ def upload_document(
     document_type: DocumentType = Form(DocumentType.OTHER),
     description: str | None = Form(None),
     is_visible_to_employee: bool = Form(True),
+    expiry_date: date | None = Form(None),
     file: UploadFile = File(...),
 ):
     employee = employee_service.require_employee(principal.db, principal.tenant_id, employee_id)
@@ -103,6 +112,9 @@ def upload_document(
         size_bytes=size,
         is_visible_to_employee=is_visible_to_employee,
         uploaded_by_user_id=principal.user_id,
+        expiry_date=expiry_date,
+        # Everything starts unverified — HR reviews it from the document register.
+        status=DocumentStatus.PENDING,
     )
     principal.db.add(doc)
     principal.db.flush()

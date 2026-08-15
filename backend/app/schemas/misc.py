@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import DocumentType, NotificationEvent
+from app.models.enums import DocumentStatus, DocumentType, NotificationEvent
 from app.schemas.common import ORMModel
 
 
@@ -11,6 +11,7 @@ class DocumentOut(ORMModel):
     id: int
     employee_id: int
     employee_name: str | None = None
+    employee_code: str | None = None
     document_type: DocumentType
     title: str
     description: str | None
@@ -20,6 +21,12 @@ class DocumentOut(ORMModel):
     is_visible_to_employee: bool
     uploaded_by_user_id: int | None
     created_at: datetime
+    # Verification
+    status: DocumentStatus = DocumentStatus.PENDING
+    verified_by_user_id: int | None = None
+    verified_at: datetime | None = None
+    rejection_reason: str | None = None
+    expiry_date: date_type | None = None
 
 
 class DocumentUpdate(BaseModel):

@@ -121,15 +121,41 @@ class HolidayType(str, enum.Enum):
 
 
 class DocumentType(str, enum.Enum):
+    RESUME = "RESUME"
     AADHAAR = "AADHAAR"
     PAN = "PAN"
     OFFER_LETTER = "OFFER_LETTER"
     JOINING_LETTER = "JOINING_LETTER"
     EXPERIENCE_LETTER = "EXPERIENCE_LETTER"
     EDUCATION = "EDUCATION"
+    ADDRESS_PROOF = "ADDRESS_PROOF"
+    BANK_PROOF = "BANK_PROOF"
+    WORK_PERMIT = "WORK_PERMIT"
     # Filed automatically when someone attaches proof to a leave request.
     LEAVE_ATTACHMENT = "LEAVE_ATTACHMENT"
     OTHER = "OTHER"
+
+
+class DocumentStatus(str, enum.Enum):
+    """Verification state of an uploaded document."""
+
+    PENDING = "PENDING"
+    VERIFIED = "VERIFIED"
+    REJECTED = "REJECTED"
+    EXPIRED = "EXPIRED"
+
+
+class WorkMode(str, enum.Enum):
+    OFFICE = "OFFICE"
+    REMOTE = "REMOTE"
+    HYBRID = "HYBRID"
+
+
+class ProfileStatus(str, enum.Enum):
+    """HR often creates a record before every document has arrived."""
+
+    DRAFT = "DRAFT"
+    COMPLETE = "COMPLETE"
 
 
 class ComponentType(str, enum.Enum):

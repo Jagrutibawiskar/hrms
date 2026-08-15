@@ -7,7 +7,9 @@ from app.models.enums import (
     EmploymentType,
     Gender,
     MaritalStatus,
+    ProfileStatus,
     RoleName,
+    WorkMode,
 )
 from app.schemas.common import ORMModel
 
@@ -44,6 +46,7 @@ class EmploymentDetailsIn(BaseModel):
     confirmation_date: date | None = None
     probation_months: int | None = Field(default=None, ge=0, le=36)
     employment_type: EmploymentType = EmploymentType.FULL_TIME
+    work_mode: WorkMode = WorkMode.OFFICE
     is_manager: bool = False
 
 
@@ -61,6 +64,7 @@ class EmploymentDetailsOut(ORMModel):
     confirmation_date: date | None
     probation_months: int | None
     employment_type: EmploymentType
+    work_mode: WorkMode = WorkMode.OFFICE
     is_manager: bool
     exit_date: date | None
     exit_reason: str | None
@@ -116,6 +120,7 @@ class EmployeeOut(BaseModel):
     work_email: str
     profile_photo_path: str | None
     status: EmployeeStatus
+    profile_status: ProfileStatus = ProfileStatus.COMPLETE
     roles: list[str] = []
     personal: PersonalDetailsOut | None = None
     employment: EmploymentDetailsOut | None = None

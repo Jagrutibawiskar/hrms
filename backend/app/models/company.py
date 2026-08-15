@@ -35,6 +35,14 @@ class Company(Base, PKMixin, TimestampMixin):
     geofence_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     max_regularizations_per_month: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
 
+    # Employee code generation, e.g. "EMP-{NUMBER}" -> EMP-0001. HR can override
+    # per employee, but the sequence means they rarely have to.
+    employee_id_format: Mapped[str] = mapped_column(
+        String(40), default="EMP-{NUMBER}", nullable=False
+    )
+    employee_id_padding: Mapped[int] = mapped_column(Integer, default=4, nullable=False)
+    employee_id_next: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+
     onboarding_step: Mapped[OnboardingStep] = mapped_column(
         enum_column(OnboardingStep), default=OnboardingStep.ORGANIZATION, nullable=False
     )
