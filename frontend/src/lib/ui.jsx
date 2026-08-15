@@ -212,12 +212,15 @@ export function PersonCell({ name, code, secondary }) {
 
 /** Table that scrolls horizontally on narrow screens instead of breaking the page. */
 export function DataTable({ columns, rows, renderRow, empty = 'No records found.' }) {
+  const safeColumns = Array.isArray(columns) ? columns : []
+  const safeRows = Array.isArray(rows) ? rows : []
+
   return (
     <div className="data-table">
       <table>
         <thead>
           <tr>
-            {columns.map((column, index) => (
+            {safeColumns.map((column, index) => (
               <th key={index} className={typeof column === 'object' && column.num ? 'num' : ''}>
                 {typeof column === 'object' ? column.label : column}
               </th>
@@ -225,12 +228,12 @@ export function DataTable({ columns, rows, renderRow, empty = 'No records found.
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 ? (
+          {safeRows.length === 0 ? (
             <tr className="empty-row">
-              <td colSpan={columns.length}>{empty}</td>
+              <td colSpan={Math.max(safeColumns.length, 1)}>{empty}</td>
             </tr>
           ) : (
-            rows.map(renderRow)
+            safeRows.map(renderRow)
           )}
         </tbody>
       </table>

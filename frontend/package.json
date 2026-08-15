@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "node scripts/check-styles.mjs && vite build",
+    "dev": "vite --configLoader runner",
+    "build": "node scripts/check-styles.mjs && vite build --configLoader runner",
     "check:styles": "node scripts/check-styles.mjs",
     "preview": "vite preview --port 3000"
   },

@@ -1690,6 +1690,426 @@
   color: var(--accent);
 }
 
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 0 0 18px;
+}
+.stats-row article {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.stats-row strong,
+.stats-row b {
+  display: block;
+}
+.stats-row strong {
+  color: var(--accent);
+  font-size: 24px;
+}
+.stats-row b {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+/* ---------------------------------------------------------------- responsive HR workspace */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.dashboard,
+.dash-main,
+.dash-sidebar,
+.settings-page,
+.attendance-page,
+.holidays-page,
+.documents-page,
+.reports-page,
+.payroll-page,
+.profile-page {
+  min-width: 0;
+}
+
+.panel,
+.page-hero,
+.punch,
+.data-table,
+.grid-2 > article,
+.profile-banner,
+.profile-cards > article {
+  min-width: 0;
+}
+
+.data-table {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.data-table table {
+  min-width: 760px;
+}
+.data-table th,
+.data-table td {
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+.data-table td:last-child {
+  min-width: 118px;
+}
+
+.toolbar,
+.page-hero .actions,
+.actions,
+.tabs {
+  min-width: 0;
+}
+
+.dashboard .dash-top .dashboard-header-tools {
+  min-width: 0;
+}
+
+.toolbar > *,
+.page-hero .actions > *,
+.actions > *,
+.tabs > * {
+  min-width: 0;
+}
+
+.toolbar input,
+.toolbar select,
+.form-grid input,
+.form-grid select,
+.form-grid textarea,
+.add-row input,
+.hero-select {
+  max-width: 100%;
+}
+
+.modal-card {
+  width: min(760px, calc(100vw - 32px));
+}
+
+@media (max-width: 1020px) {
+  .dash-main {
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+
+  .dash-grid,
+  .dash-bottom,
+  .hr-work-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .page-hero .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid-2,
+  .profile-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .settings-nav button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 720px) {
+  .dash-main {
+    padding: 22px 16px 40px;
+    overflow: visible;
+  }
+
+  .dashboard {
+    overflow-x: hidden;
+  }
+
+  .dash-sidebar {
+    min-width: 0;
+  }
+
+  .dash-sidebar nav {
+    max-width: 100%;
+  }
+
+  .dash-top {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .company-switcher,
+  .dash-tool,
+  .notification-action,
+  .bell {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .dashboard-header-tools {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .dashboard-header-tools .dash-actions {
+    width: 100%;
+  }
+
+  .company-switcher select {
+    width: 100%;
+  }
+
+  .page-hero {
+    padding: 22px;
+    border-radius: 14px;
+  }
+
+  .page-hero h2 {
+    font-size: 25px;
+    line-height: 1.15;
+  }
+
+  .page-hero .actions,
+  .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .page-hero .actions button,
+  .page-hero .actions select,
+  .actions button,
+  .actions select,
+  .tabs,
+  .hero-select {
+    width: 100%;
+  }
+
+  .tabs {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .tabs button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 9px;
+    padding: 14px;
+  }
+
+  .toolbar label {
+    margin-top: 2px;
+  }
+
+  .toolbar input,
+  .toolbar select,
+  .toolbar button,
+  .toolbar .table-action,
+  .toolbar .primary-button {
+    width: 100%;
+  }
+
+  .stat-row,
+  .stats-row,
+  .balance-grid,
+  .leave-balance-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .punch {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .punch .controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .punch button {
+    width: 100%;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .two-up,
+  .geo-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .geo-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .geo-inputs {
+    display: grid;
+    width: 100%;
+  }
+
+  .geo-inputs input,
+  .geo-inputs input[name='radius'],
+  .geo-inputs button {
+    width: 100%;
+  }
+
+  .add-row {
+    flex-direction: column;
+  }
+
+  .add-row .primary-button {
+    width: 100%;
+  }
+
+  .profile-banner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: flex-start;
+    padding: 21px;
+  }
+
+  .profile-banner > button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .detail-list > div {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .detail-list dd {
+    text-align: left;
+  }
+
+  .bar-chart p {
+    grid-template-columns: minmax(82px, 1fr) 1.4fr 34px;
+    gap: 8px;
+  }
+
+  .feed-row {
+    align-items: flex-start;
+  }
+
+  .modal-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-height: 88vh;
+    border-radius: 18px 18px 0 0;
+    padding: 24px 18px 20px;
+  }
+}
+
+@media (max-width: 460px) {
+  .dash-main {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .page-hero {
+    padding: 19px;
+  }
+
+  .page-hero h2 {
+    font-size: 22px;
+  }
+
+  .stat-row,
+  .stats-row,
+  .balance-grid,
+  .leave-balance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2 > article,
+  .panel,
+  .profile-banner {
+    padding: 18px;
+    border-radius: 13px;
+  }
+
+  .data-table table {
+    min-width: 620px;
+  }
+
+  .profile-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-copy h2,
+  .profile-copy p,
+  .detail-list dd {
+    overflow-wrap: anywhere;
+  }
+
+  .modal-card {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .logo-editor {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .logo-editor > div:last-child,
+  .logo-frame {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .bar-chart p {
+    grid-template-columns: 1fr;
+  }
+
+  .bar-chart strong {
+    text-align: left;
+  }
+}
+
 @media print {
   .dash-sidebar,
   .dash-top,

@@ -45,7 +45,8 @@ export function ReportsPage({ notify }) {
   )
 
   const set = patch => setFilters(current => ({ ...current, ...patch }))
-  const maxHeadcount = Math.max(1, ...(headcount.data?.rows || []).map(r => r.headcount))
+  const headcountRows = Array.isArray(headcount.data?.rows) ? headcount.data.rows : []
+  const maxHeadcount = Math.max(1, ...headcountRows.map(r => Number(r.headcount) || 0))
 
   return (
     <section className="reports-page">
@@ -126,28 +127,34 @@ export function ReportsPage({ notify }) {
       </div>
 
       <Async state={state}>
-        {data => (
-          <>
-            <p className="form-note">{data.count} rows</p>
+        {data => {
+          const columns = Array.isArray(data?.columns) ? data.columns : []
+          const rows = Array.isArray(data?.rows) ? data.rows : []
+          const count = Number.isFinite(Number(data?.count)) ? Number(data.count) : rows.length
+
+          return (
+            <>
+              <p className="form-note">{count} rows</p>
             <DataTable
-              columns={data.columns.map(c => c.replace(/_/g, ' '))}
-              rows={data.rows.slice(0, 200)}
+              columns={columns.map(c => String(c).replace(/_/g, ' '))}
+              rows={rows.slice(0, 200)}
               empty="No data for these filters."
               renderRow={(row, index) => (
                 <tr key={index}>
-                  {data.columns.map(column => (
+                  {columns.map(column => (
                     <td key={column}>{String(row[column] ?? '')}</td>
                   ))}
                 </tr>
               )}
             />
-            {data.rows.length > 200 && (
+            {rows.length > 200 && (
               <p className="form-note">
                 Showing the first 200 rows — export to CSV for the full set.
               </p>
             )}
-          </>
-        )}
+            </>
+          )
+        }}
       </Async>
 
       <Async state={headcount}>
@@ -155,7 +162,7 @@ export function ReportsPage({ notify }) {
           <section className="panel">
             <h3>Headcount by department</h3>
             <div className="bar-chart">
-              {data.rows.map(row => (
+              {(Array.isArray(data?.rows) ? data.rows : []).map(row => (
                 <p key={row.department}>
                   <span>{row.department}</span>
                   <i>

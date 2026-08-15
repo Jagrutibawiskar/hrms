@@ -31,34 +31,42 @@ export function AuthPage({ mode }) {
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState([])
   const [loading, setLoading] = useState(false)
+  const [values, setValues] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+  })
+
+  function setField(name, value) {
+    setValues(current => ({ ...current, [name]: value }))
+  }
+
+  async function finishAuth(path, payload) {
+    const me = await authenticate(path, payload)
+    setMe(me)
+    window.location.hash = landingRoute(me)
+  }
 
   async function submit(event) {
     event.preventDefault()
     setError('')
     setFieldErrors([])
     setLoading(true)
-    const form = new FormData(event.currentTarget)
-
     // The backend takes first_name / last_name, not a single full_name field.
-    const fullName = String(form.get('full-name') || '').trim()
+    const fullName = values.fullName.trim()
     const [firstName, ...rest] = fullName.split(/\s+/)
 
     const payload = isSignup
       ? {
-          email: form.get('email'),
-          password: form.get('password'),
+          email: values.email,
+          password: values.password,
           first_name: firstName || 'There',
           last_name: rest.join(' ') || null,
         }
-      : { email: form.get('email'), password: form.get('password') }
+      : { email: values.email, password: values.password }
 
     try {
-      const me = await authenticate(
-        isSignup ? ENDPOINTS.auth.signup : ENDPOINTS.auth.login,
-        payload,
-      )
-      setMe(me)
-      window.location.hash = landingRoute(me)
+      await finishAuth(isSignup ? ENDPOINTS.auth.signup : ENDPOINTS.auth.login, payload)
     } catch (err) {
       setError(err.message)
       setFieldErrors(err.fields || [])
@@ -94,7 +102,14 @@ export function AuthPage({ mode }) {
             {isSignup && (
               <>
                 <label>Full name</label>
-                <input name="full-name" required placeholder="Your full name" autoComplete="name" />
+                <input
+                  name="full-name"
+                  required
+                  placeholder="Your full name"
+                  autoComplete="name"
+                  value={values.fullName}
+                  onChange={event => setField('fullName', event.target.value)}
+                />
               </>
             )}
             <label>Work email</label>
@@ -104,6 +119,8 @@ export function AuthPage({ mode }) {
               type="email"
               placeholder="you@company.com"
               autoComplete="email"
+              value={values.email}
+              onChange={event => setField('email', event.target.value)}
             />
             <label>Password</label>
             <div className="password-field">
@@ -114,6 +131,8 @@ export function AuthPage({ mode }) {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="At least 8 characters"
                 autoComplete={isSignup ? 'new-password' : 'current-password'}
+                value={values.password}
+                onChange={event => setField('password', event.target.value)}
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? 'Hide' : 'Show'}

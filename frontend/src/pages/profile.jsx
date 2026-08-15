@@ -63,8 +63,12 @@ export function ProfilePage({ notify }) {
   return (
     <section className="profile-page">
       <Async state={state}>
-        {employee => (
-          <>
+        {employee => {
+          const roles = Array.isArray(employee?.roles) ? employee.roles : []
+          const salaryComponents = Array.isArray(salary.data?.components) ? salary.data.components : []
+
+          return (
+            <>
             <section className="profile-banner">
               <span className="avatar-lg">{initials(employee.full_name)}</span>
               <div className="profile-copy">
@@ -75,7 +79,7 @@ export function ProfilePage({ notify }) {
                   {employee.employment?.department_name || '—'}
                 </p>
                 <div className="role-tags">
-                  {employee.roles.map(role => (
+                  {roles.map(role => (
                     <span key={role} className="chip">
                       {titleCase(role)}
                     </span>
@@ -151,7 +155,7 @@ export function ProfilePage({ notify }) {
                   </p>
                   <DataTable
                     columns={['Component', 'Type', 'Monthly']}
-                    rows={salary.data.components}
+                    rows={salaryComponents}
                     renderRow={row => (
                       <tr key={row.component_id}>
                         <td>{row.name}</td>
@@ -165,8 +169,9 @@ export function ProfilePage({ notify }) {
 
               <ChangePassword notify={notify} />
             </div>
-          </>
-        )}
+            </>
+          )
+        }}
       </Async>
 
       {!state.loading && state.error && (

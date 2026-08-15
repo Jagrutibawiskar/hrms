@@ -354,7 +354,7 @@ function TeamAttendance({ notify }) {
             className="table-action"
             onClick={() =>
               run(
-                () => api.post(`/attendance/backfill${query({ day: filters.to_date })}`),
+                () => api.post(`${ENDPOINTS.attendance.backfill}${query({ day: filters.to_date })}`),
                 'Missing attendance filled in',
               )
             }

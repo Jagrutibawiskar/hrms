@@ -438,6 +438,17 @@ export function PayrollPage({ notify }) {
                     <button className="table-action" onClick={() => setOpenRun(row.id)}>
                       Open
                     </button>
+                    {can('payroll:process') && ['DRAFT', 'PENDING_REVIEW'].includes(row.status) && (
+                      <button
+                        className="table-action decline"
+                        onClick={() => {
+                          if (window.confirm(`Delete payroll for ${MONTHS[row.month - 1]} ${row.year}?`))
+                            act(() => api.del(ENDPOINTS.payroll.run(row.id)), 'Payroll run deleted')
+                        }}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               )}

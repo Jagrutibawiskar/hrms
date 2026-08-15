@@ -20,6 +20,16 @@ import {
 const EMPLOYMENT_TYPES = ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERN', 'CONSULTANT']
 const ROLES = ['EMPLOYEE', 'MANAGER', 'HR', 'COMPANY_ADMIN']
 const STATUSES = ['ACTIVE', 'PROBATION', 'NOTICE_PERIOD', 'INACTIVE', 'TERMINATED', 'RESIGNED']
+const WORK_MODES = ['OFFICE', 'REMOTE', 'HYBRID', 'FIELD']
+const GENDERS = ['MALE', 'FEMALE', 'OTHER', 'UNDISCLOSED']
+
+function clean(value) {
+  return value === null || String(value).trim() === '' ? null : String(value).trim()
+}
+
+function num(value) {
+  return clean(value) ? Number(value) : null
+}
 
 function AddEmployeeModal({ options, onClose, onCreated }) {
   const [created, setCreated] = useState(null)
@@ -246,6 +256,311 @@ function ImportModal({ onClose, onDone }) {
   )
 }
 
+function HrEmployeeWizard({ options, onClose, onDone }) {
+  const [draft, setDraft] = useState(null)
+  const [step, setStep] = useState('draft')
+  const review = useApi(() => api.get(ENDPOINTS.hr.review(draft.employee_id)), [draft?.employee_id], {
+    skip: !draft?.employee_id || step !== 'review',
+  })
+  const codes = useApi(() => api.get(`${ENDPOINTS.hr.employeeCodePreview}?count=3`), [])
+  const { run, pending, error } = useAction()
+
+  async function save(path, payload, next) {
+    const result = await run(() => api.patch(path, payload))
+    if (result) setStep(next)
+  }
+
+  async function createDraft(event) {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    const result = await run(() =>
+      api.post(ENDPOINTS.hr.draftEmployee, {
+        first_name: clean(form.get('first_name')),
+        middle_name: clean(form.get('middle_name')),
+        last_name: clean(form.get('last_name')),
+        work_email: clean(form.get('work_email')),
+        employee_code: clean(form.get('employee_code')),
+        joining_date: clean(form.get('joining_date')) || todayISO(),
+      }),
+    )
+    if (result) {
+      setDraft(result)
+      setStep('personal')
+    }
+  }
+
+  async function complete(force = false) {
+    const result = await run(() =>
+      api.post(`${ENDPOINTS.hr.complete(draft.employee_id)}${query({ force })}`),
+    )
+    if (result) {
+      onDone()
+      onClose()
+    }
+  }
+
+  const tabs = ['draft', 'personal', 'contact', 'employment', 'bank', 'statutory', 'review']
+
+  return (
+    <Modal title="HR employee lifecycle" onClose={onClose}>
+      <div className="tabs">
+        {tabs.map(name => (
+          <button
+            key={name}
+            className={step === name ? 'active' : ''}
+            disabled={name !== 'draft' && !draft}
+            onClick={() => setStep(name)}
+          >
+            {titleCase(name)}
+          </button>
+        ))}
+      </div>
+
+      {step === 'draft' && (
+        <form className="form-grid" onSubmit={createDraft}>
+          <p className="form-note">
+            Suggested codes: {(codes.data || []).join(', ') || 'loading…'}
+          </p>
+          <label>First name</label>
+          <input name="first_name" required />
+          <label>Middle name</label>
+          <input name="middle_name" />
+          <label>Last name</label>
+          <input name="last_name" />
+          <label>Work email</label>
+          <input name="work_email" type="email" required />
+          <label>Employee code</label>
+          <input name="employee_code" placeholder="Blank = auto-generated" />
+          <label>Joining date</label>
+          <input name="joining_date" type="date" defaultValue={todayISO()} />
+          {error && <p className="form-error">{error}</p>}
+          <button className="primary-button" disabled={pending}>
+            {pending ? 'Creating…' : 'Create draft'}
+          </button>
+        </form>
+      )}
+
+      {draft && step === 'personal' && (
+        <form
+          className="form-grid"
+          onSubmit={event => {
+            event.preventDefault()
+            const form = new FormData(event.currentTarget)
+            save(ENDPOINTS.hr.personal(draft.employee_id), {
+              first_name: clean(form.get('first_name')),
+              middle_name: clean(form.get('middle_name')),
+              last_name: clean(form.get('last_name')),
+              date_of_birth: clean(form.get('date_of_birth')),
+              gender: clean(form.get('gender')),
+              blood_group: clean(form.get('blood_group')),
+              nationality: clean(form.get('nationality')),
+              marital_status: clean(form.get('marital_status')),
+            }, 'contact')
+          }}
+        >
+          <p className="form-note">Draft: {draft.employee_code}</p>
+          <label>First name</label>
+          <input name="first_name" required />
+          <label>Middle name</label>
+          <input name="middle_name" />
+          <label>Last name</label>
+          <input name="last_name" />
+          <label>Date of birth</label>
+          <input name="date_of_birth" type="date" />
+          <label>Gender</label>
+          <select name="gender"><option value="">—</option>{GENDERS.map(g => <option key={g} value={g}>{titleCase(g)}</option>)}</select>
+          <label>Blood group</label>
+          <input name="blood_group" />
+          <label>Nationality</label>
+          <input name="nationality" defaultValue="Indian" />
+          <label>Marital status</label>
+          <select name="marital_status"><option value="">—</option>{['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED'].map(s => <option key={s} value={s}>{titleCase(s)}</option>)}</select>
+          {error && <p className="form-error">{error}</p>}
+          <button className="primary-button" disabled={pending}>Save personal</button>
+        </form>
+      )}
+
+      {draft && step === 'contact' && (
+        <form
+          className="form-grid"
+          onSubmit={event => {
+            event.preventDefault()
+            const form = new FormData(event.currentTarget)
+            save(ENDPOINTS.hr.contact(draft.employee_id), {
+              personal_email: clean(form.get('personal_email')),
+              phone: clean(form.get('phone')),
+              alternate_phone: clean(form.get('alternate_phone')),
+              address_line1: clean(form.get('address_line1')),
+              address_line2: clean(form.get('address_line2')),
+              city: clean(form.get('city')),
+              state: clean(form.get('state')),
+              country: clean(form.get('country')),
+              postal_code: clean(form.get('postal_code')),
+              emergency_contact_name: clean(form.get('emergency_contact_name')),
+              emergency_contact_relation: clean(form.get('emergency_contact_relation')),
+              emergency_contact_phone: clean(form.get('emergency_contact_phone')),
+            }, 'employment')
+          }}
+        >
+          <label>Personal email</label><input name="personal_email" type="email" />
+          <label>Phone</label><input name="phone" />
+          <label>Alternate phone</label><input name="alternate_phone" />
+          <label>Address line 1</label><input name="address_line1" />
+          <label>Address line 2</label><input name="address_line2" />
+          <label>City</label><input name="city" />
+          <label>State</label><input name="state" />
+          <label>Country</label><input name="country" defaultValue="India" />
+          <label>Postal code</label><input name="postal_code" />
+          <label>Emergency contact</label><input name="emergency_contact_name" />
+          <label>Emergency relation</label><input name="emergency_contact_relation" />
+          <label>Emergency phone</label><input name="emergency_contact_phone" />
+          {error && <p className="form-error">{error}</p>}
+          <button className="primary-button" disabled={pending}>Save contact</button>
+        </form>
+      )}
+
+      {draft && step === 'employment' && (
+        <form
+          className="form-grid"
+          onSubmit={event => {
+            event.preventDefault()
+            const form = new FormData(event.currentTarget)
+            save(ENDPOINTS.hr.employment(draft.employee_id), {
+              employee_code: clean(form.get('employee_code')),
+              joining_date: clean(form.get('joining_date')) || todayISO(),
+              employment_type: form.get('employment_type'),
+              work_mode: form.get('work_mode'),
+              department_id: num(form.get('department_id')),
+              designation_id: num(form.get('designation_id')),
+              location_id: num(form.get('location_id')),
+              manager_id: num(form.get('manager_id')),
+              work_policy_id: num(form.get('work_policy_id')),
+              probation_months: num(form.get('probation_months')),
+              confirmation_date: clean(form.get('confirmation_date')),
+              is_manager: form.get('is_manager') === 'on',
+              status: form.get('status'),
+            }, 'bank')
+          }}
+        >
+          <label>Employee code</label><input name="employee_code" defaultValue={draft.employee_code} />
+          <label>Joining date</label><input name="joining_date" type="date" defaultValue={todayISO()} required />
+          <label>Department</label><select name="department_id"><option value="">—</option>{(options.departments || []).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select>
+          <label>Designation</label><select name="designation_id"><option value="">—</option>{(options.designations || []).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select>
+          <label>Location</label><select name="location_id"><option value="">—</option>{(options.locations || []).map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
+          <label>Manager</label><select name="manager_id"><option value="">—</option>{(options.managers || []).map(m => <option key={m.id} value={m.id}>{m.full_name}</option>)}</select>
+          <label>Employment type</label><select name="employment_type" defaultValue="FULL_TIME">{EMPLOYMENT_TYPES.map(t => <option key={t} value={t}>{titleCase(t)}</option>)}</select>
+          <label>Work mode</label><select name="work_mode" defaultValue="OFFICE">{WORK_MODES.map(t => <option key={t} value={t}>{titleCase(t)}</option>)}</select>
+          <label>Probation months</label><input name="probation_months" type="number" min="0" max="36" />
+          <label>Confirmation date</label><input name="confirmation_date" type="date" />
+          <label>Status</label><select name="status" defaultValue="ACTIVE">{STATUSES.map(s => <option key={s} value={s}>{titleCase(s)}</option>)}</select>
+          <label><input name="is_manager" type="checkbox" /> This person manages others</label>
+          {error && <p className="form-error">{error}</p>}
+          <button className="primary-button" disabled={pending}>Save employment</button>
+        </form>
+      )}
+
+      {draft && step === 'bank' && (
+        <form
+          className="form-grid"
+          onSubmit={event => {
+            event.preventDefault()
+            const form = new FormData(event.currentTarget)
+            run(() => api.put(ENDPOINTS.hr.bank(draft.employee_id), {
+              bank_name: clean(form.get('bank_name')),
+              account_holder_name: clean(form.get('account_holder_name')),
+              account_number: clean(form.get('account_number')),
+              ifsc: clean(form.get('ifsc')),
+              branch: clean(form.get('branch')),
+            })).then(result => result && setStep('statutory'))
+          }}
+        >
+          <label>Bank name</label><input name="bank_name" />
+          <label>Account holder</label><input name="account_holder_name" />
+          <label>Account number</label><input name="account_number" />
+          <label>IFSC</label><input name="ifsc" />
+          <label>Branch</label><input name="branch" />
+          {error && <p className="form-error">{error}</p>}
+          <button type="button" className="ghost-button" onClick={() => setStep('statutory')}>Skip bank</button>
+          <button className="primary-button" disabled={pending}>Save bank</button>
+        </form>
+      )}
+
+      {draft && step === 'statutory' && (
+        <form
+          className="form-grid"
+          onSubmit={event => {
+            event.preventDefault()
+            const form = new FormData(event.currentTarget)
+            run(() => api.put(ENDPOINTS.hr.statutory(draft.employee_id), {
+              pan: clean(form.get('pan')),
+              pf_eligible: form.get('pf_eligible') === 'on',
+              uan: clean(form.get('uan')),
+              pf_number: clean(form.get('pf_number')),
+              esi_eligible: form.get('esi_eligible') === 'on',
+              esi_number: clean(form.get('esi_number')),
+              professional_tax_state: clean(form.get('professional_tax_state')),
+            })).then(result => result && setStep('review'))
+          }}
+        >
+          <label>PAN</label><input name="pan" />
+          <label><input name="pf_eligible" type="checkbox" /> PF eligible</label>
+          <label>UAN</label><input name="uan" />
+          <label>PF number</label><input name="pf_number" />
+          <label><input name="esi_eligible" type="checkbox" /> ESI eligible</label>
+          <label>ESI number</label><input name="esi_number" />
+          <label>Professional tax state</label><input name="professional_tax_state" />
+          {error && <p className="form-error">{error}</p>}
+          <button className="primary-button" disabled={pending}>Save statutory</button>
+        </form>
+      )}
+
+      {draft && step === 'review' && (
+        <Async state={review}>
+          {data => (
+            <div>
+              <p className="form-note">
+                {data.full_name} · {data.employee_code} · {titleCase(data.profile_status)}
+              </p>
+              <DataTable
+                columns={['Section', 'Status', 'Details']}
+                rows={data.sections.flatMap(section =>
+                  section.items.map(item => ({ section: section.name, ...item })),
+                )}
+                renderRow={row => (
+                  <tr key={`${row.section}-${row.label}`}>
+                    <td>{row.section}</td>
+                    <td><StatusChip status={row.ok ? 'ACTIVE' : 'PENDING'} /></td>
+                    <td><b>{row.label}</b>{row.detail ? ` · ${row.detail}` : ''}</td>
+                  </tr>
+                )}
+              />
+              {data.blocking.length > 0 && (
+                <p className="form-error">Blocking: {data.blocking.join(', ')}</p>
+              )}
+              <div className="actions">
+                <button className="ghost-button" onClick={() => review.reload()}>Refresh review</button>
+                <button
+                  className="primary-button"
+                  disabled={pending || !data.can_complete}
+                  onClick={() => complete(false)}
+                >
+                  Complete employee
+                </button>
+                {!data.can_complete && (
+                  <button className="table-action" disabled={pending} onClick={() => complete(true)}>
+                    Force complete
+                  </button>
+                )}
+              </div>
+              {error && <p className="form-error">{error}</p>}
+            </div>
+          )}
+        </Async>
+      )}
+    </Modal>
+  )
+}
+
 function EmployeeDetail({ employeeId, onClose, notify, canManage }) {
   const state = useApi(() => api.get(ENDPOINTS.employees.byId(employeeId)), [employeeId])
   const salary = useApi(() => api.get(ENDPOINTS.payroll.salaries(employeeId)), [employeeId], {
@@ -452,6 +767,7 @@ export function PeoplePage({ notify }) {
   const [filters, setFilters] = useState({ search: '', department_id: '', status: '', page: 1 })
   const [selected, setSelected] = useState(null)
   const [addOpen, setAddOpen] = useState(false)
+  const [wizardOpen, setWizardOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
 
   const departments = useApi(() => api.get(ENDPOINTS.organization.departments), [])
@@ -477,6 +793,9 @@ export function PeoplePage({ notify }) {
           <div className="actions">
             <button className="ghost-button" onClick={() => setImportOpen(true)}>
               Import CSV
+            </button>
+            <button className="ghost-button" onClick={() => setWizardOpen(true)}>
+              HR wizard
             </button>
             <button className="primary-button" onClick={() => setAddOpen(true)}>
               Add employee
@@ -569,6 +888,22 @@ export function PeoplePage({ notify }) {
           onClose={() => setAddOpen(false)}
           onCreated={() => {
             notify('Employee added')
+            state.reload()
+          }}
+        />
+      )}
+
+      {wizardOpen && (
+        <HrEmployeeWizard
+          options={{
+            departments: departments.data,
+            designations: designations.data,
+            locations: locations.data,
+            managers: state.data?.items || [],
+          }}
+          onClose={() => setWizardOpen(false)}
+          onDone={() => {
+            notify('Employee lifecycle completed')
             state.reload()
           }}
         />
