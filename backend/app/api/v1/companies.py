@@ -110,6 +110,10 @@ def update_current_company(
         data["company_size"] = data["company_size"].value
     if "email" in data and data["email"] is not None:
         data["email"] = str(data["email"]).lower()
+    # Without {NUMBER} every generated code would be identical.
+    fmt = data.get("employee_id_format")
+    if fmt is not None and "{NUMBER}" not in fmt:
+        raise BadRequest("Employee ID format must contain {NUMBER}, e.g. EMP-{NUMBER}")
 
     for field, value in data.items():
         setattr(company, field, value)

@@ -12,6 +12,11 @@ from app.models.employee import (
 )
 from app.models.leave import LeaveRequest
 from app.models.notification import AuditLog, Notification
+from app.models.onboarding_records import (
+    DocumentPolicy,
+    EmployeeBankDetail,
+    EmployeeStatutoryDetail,
+)
 from app.models.organization import Department, Designation, Location
 from app.models.payroll import (
     EmployeeSalary,
@@ -35,8 +40,11 @@ __all__ = [
     "CompanyCompliance",
     "Department",
     "Designation",
+    "DocumentPolicy",
     "Employee",
+    "EmployeeBankDetail",
     "EmployeeDocument",
+    "EmployeeStatutoryDetail",
     "EmployeeEmploymentDetail",
     "EmployeePersonalDetail",
     "EmployeeSalary",

@@ -59,6 +59,7 @@ def serialize_employee(db, employee: Employee) -> EmployeeOut:
             confirmation_date=emp.confirmation_date,
             probation_months=emp.probation_months,
             employment_type=emp.employment_type,
+            work_mode=emp.work_mode,
             is_manager=emp.is_manager,
             exit_date=emp.exit_date,
             exit_reason=emp.exit_reason,
@@ -80,6 +81,7 @@ def serialize_employee(db, employee: Employee) -> EmployeeOut:
         work_email=employee.work_email,
         profile_photo_path=employee.profile_photo_path,
         status=employee.status,
+        profile_status=employee.profile_status,
         roles=roles,
         personal=PersonalDetailsOut.model_validate(employee.personal)
         if employee.personal

@@ -46,6 +46,9 @@ class CompanyUpdate(BaseModel):
     fiscal_year_start_month: int | None = Field(default=None, ge=1, le=12)
     geofence_enabled: bool | None = None
     max_regularizations_per_month: int | None = Field(default=None, ge=0, le=31)
+    # Must contain {NUMBER}; that's where the sequence is substituted.
+    employee_id_format: str | None = Field(default=None, min_length=1, max_length=40)
+    employee_id_padding: int | None = Field(default=None, ge=1, le=10)
 
 
 class CompanyOut(ORMModel):
@@ -72,6 +75,8 @@ class CompanyOut(ORMModel):
     logo_url: str | None = None
     geofence_enabled: bool = False
     max_regularizations_per_month: int = 3
+    employee_id_format: str = "EMP-{NUMBER}"
+    employee_id_padding: int = 4
     created_at: datetime
 
 

@@ -9,6 +9,7 @@ from app.api.v1 import (
     documents,
     employees,
     holidays,
+    hr,
     leaves,
     notifications,
     onboarding,
@@ -25,6 +26,7 @@ api_router.include_router(compliance.router)
 api_router.include_router(onboarding.router)
 api_router.include_router(organization.router)
 api_router.include_router(employees.router)
+api_router.include_router(hr.router)
 api_router.include_router(attendance.router)
 api_router.include_router(leaves.router)
 api_router.include_router(holidays.router)

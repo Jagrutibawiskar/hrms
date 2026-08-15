@@ -9,6 +9,8 @@ from app.models.enums import (
     EmploymentType,
     Gender,
     MaritalStatus,
+    ProfileStatus,
+    WorkMode,
     enum_column,
 )
 
@@ -29,12 +31,18 @@ class Employee(Base, PKMixin, TimestampMixin):
 
     employee_code: Mapped[str] = mapped_column(String(40), nullable=False)
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    middle_name: Mapped[str | None] = mapped_column(String(100))
     last_name: Mapped[str | None] = mapped_column(String(100))
     work_email: Mapped[str] = mapped_column(String(255), nullable=False)
     profile_photo_path: Mapped[str | None] = mapped_column(String(500))
 
     status: Mapped[EmployeeStatus] = mapped_column(
         enum_column(EmployeeStatus), default=EmployeeStatus.ACTIVE, nullable=False
+    )
+    # DRAFT while HR is still collecting details/documents; COMPLETE once the
+    # company's document policy is satisfied.
+    profile_status: Mapped[ProfileStatus] = mapped_column(
+        enum_column(ProfileStatus), default=ProfileStatus.COMPLETE, nullable=False, index=True
     )
 
     user: Mapped["User | None"] = relationship(back_populates="employee")  # noqa: F821
@@ -77,8 +85,10 @@ class EmployeePersonalDetail(Base, PKMixin, TimestampMixin):
     gender: Mapped[Gender | None] = mapped_column(enum_column(Gender))
     marital_status: Mapped[MaritalStatus | None] = mapped_column(enum_column(MaritalStatus))
     blood_group: Mapped[str | None] = mapped_column(String(10))
+    nationality: Mapped[str | None] = mapped_column(String(80))
     personal_email: Mapped[str | None] = mapped_column(String(255))
     phone: Mapped[str | None] = mapped_column(String(30))
+    alternate_phone: Mapped[str | None] = mapped_column(String(30))
 
     address_line1: Mapped[str | None] = mapped_column(String(255))
     address_line2: Mapped[str | None] = mapped_column(String(255))
@@ -123,6 +133,9 @@ class EmployeeEmploymentDetail(Base, PKMixin, TimestampMixin):
     probation_months: Mapped[int | None] = mapped_column(Integer)
     employment_type: Mapped[EmploymentType] = mapped_column(
         enum_column(EmploymentType), default=EmploymentType.FULL_TIME, nullable=False
+    )
+    work_mode: Mapped[WorkMode] = mapped_column(
+        enum_column(WorkMode), default=WorkMode.OFFICE, nullable=False
     )
     is_manager: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
